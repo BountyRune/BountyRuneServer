@@ -6,17 +6,18 @@ contract("MatchManager", accounts => {
 
     const index = {
         matchId:0,
-        radiantBets:1,
-        direBets:2,
-        startTime:3,
+        poolPrice: 1,
+        radiantBets:2,
+        direBets:3,
         radiantWin:4,
-        ended:5,
-        withdrawable:6,
+        direWin:5,
+        withdrawable: 6,
         bettable:7,
         refundable:8,
     };
 
     beforeEach(async () => {
+        // for testing purposes
         mm = await MatchManager.new();
     });
 
@@ -38,11 +39,10 @@ contract("MatchManager", accounts => {
     })
 
     it("can add match if user is an admin", async() => {
-        await mm.addMatch(1, 2, { from:firstAccount });
+        await mm.addMatch(1, { from:firstAccount });
         const addedMatch = await mm.matches.call(0);
         assert.equal(await mm.matchesNumber.call(), 1);
         assert.equal(addedMatch[index.matchId], 1);
-        assert.equal(addedMatch[index.startTime], 2);
         assert.equal(addedMatch[index.bettable], true);
         assert.equal(addedMatch[index.refundable], true);
     })
@@ -57,28 +57,19 @@ contract("MatchManager", accounts => {
     })
 
     it("can start the match, the bets will not refundable and cant bet anymore", async() => {
-        await mm.addMatch(1, 2, { from:firstAccount });
+        await mm.addMatch(1, { from:firstAccount });
         await mm.startMatch(1, { from:firstAccount });
         const addedMatch = await mm.matches.call(0);
         assert.equal(addedMatch[index.refundable], false);
         assert.equal(addedMatch[index.bettable], false);
     })
 
-    it("can end the match, the bets will withdrawable and it will tell if radiant win", async() => {
-        await mm.addMatch(1, 2, { from:firstAccount });
+    it("can end the match, the bets will withdrawable", async() => {
+        await mm.addMatch(1, { from:firstAccount });
         await mm.startMatch(1, { from:firstAccount });
-        await mm.endMatch(1, true, { from:firstAccount });
+        await mm.endMatch(1, { from:firstAccount });
         const addedMatch1 = await mm.matches.call(0);
-        assert.equal(addedMatch1[index.ended], true);
         assert.equal(addedMatch1[index.withdrawable], true);
-        assert.equal(addedMatch1[index.radiantWin], true);
-        await mm.addMatch(1, 2, { from:firstAccount });
-        await mm.startMatch(1, { from:firstAccount });
-        await mm.endMatch(1, false, { from:firstAccount });
-        const addedMatch2 = await mm.matches.call(1);
-        assert.equal(addedMatch2[index.ended], true);
-        assert.equal(addedMatch2[index.withdrawable], true);
-        assert.equal(addedMatch2[index.radiantWin], false);
-        
+        assert.equal(addedMatch1[index.radiantWin], false);     
     })
 });
