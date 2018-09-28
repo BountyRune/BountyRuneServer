@@ -8,12 +8,14 @@
   },
   "scripts": {
     "dev": "nodemon -r babel-register src/index.js",
-    "start": "node src/index.js"
+    "babel": "babel src -d dist",
+    "start": "node dist/index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.18.0",
+    "babel-cli": "^6.26.0",
     "bignumber.js": "^7.2.1",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
